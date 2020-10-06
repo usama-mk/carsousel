@@ -1,13 +1,12 @@
 import "react-responsive-carousel/lib/styles/carousel.min.css";
 import './carousel.css';
 import { Button, IconButton } from '@material-ui/core';
-import { Delete, CloudUpload, DomainDisabled } from "@material-ui/icons";
+import { Delete, CloudUpload } from "@material-ui/icons";
 import { useState } from "react";
 import { storage } from "../firebase";
 import { db } from "../firebase";
 import { useEffect } from "react";
 var React = require('react');
-var ReactDOM = require('react-dom');
 var Carousel = require('react-responsive-carousel').Carousel;
 
 
@@ -19,7 +18,7 @@ const DemoCarousel = () => {
     const [progress, setProgress] = useState(0);
 
     useEffect(() => {
-        db.collection("imagesUrl").onSnapshot((snapshot) =>
+        db.collection("imagesData").onSnapshot((snapshot) =>
             setUrlArray(
                 snapshot.docs.map((doc) => ({
                     id: doc.id,
@@ -36,11 +35,20 @@ const DemoCarousel = () => {
 
     }
 
-    const deleteImage = (id) => {
-        db.collection("imagesUrl").doc(id).delete();
+    const deleteImage = (id, name) => {
+        db.collection("imagesData").doc(id).delete();
+        //delete from storage
+        var desertRef = storage.ref(`images/${image.name}`);
+        desertRef.delete().then(function() {
+            // File deleted successfully
+          }).catch(function(error) {
+            // Uh-oh, an error occurred!
+            console.log(error);
+          });
     }
 
     const uploadFileHandler = () => {
+        if(image){
         const uploadTask = storage.ref(`images/${image.name}`).put(image);
         uploadTask.on(
             "state_changed",
@@ -57,15 +65,16 @@ const DemoCarousel = () => {
                 storage.ref("images").child(image.name).getDownloadURL().then(url => {
                     urlArray.push(url);
                     console.log(urlArray);
-                    db.collection("imagesUrl").add({
-                        imageUrl: url
+                    db.collection("imagesData").add({
+                        imageUrl: url,
+                        imageName: image.name
                     });
 
                 })
             }
         )
     }
-
+}
 
     return (
         <div className="carousel">
@@ -76,14 +85,14 @@ const DemoCarousel = () => {
                     (<div>
 
                         <IconButton href={form} style={{ width: "99vw" }}>
-                            <img  alt="No Image Loaded" src={url.data.imageUrl} height="400" width="480" />
+                            <img  alt="Not Loaded" src={url.data.imageUrl} height="400" width="480" />
 
                         </IconButton>
                         <br />
                         <Button
-                            onClick={() => { deleteImage(url.id) }}
+                            onClick={() => { deleteImage(url.id, url.data.imageName) }}
                             variant="contained"
-                            color="defauly"
+                            color="default"
                             // className="deleteButton"
                             startIcon={<Delete />}
                             style={{ margin: "0", position: "relative", bottom: "40px" }}
