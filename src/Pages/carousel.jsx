@@ -1,39 +1,43 @@
 import "react-responsive-carousel/lib/styles/carousel.min.css";
-import img1 from '../Images/1.png';
 import './carousel.css';
-import { Button } from '@material-ui/core';
+import { Button, IconButton } from '@material-ui/core';
 import { Delete, CloudUpload, DomainDisabled } from "@material-ui/icons";
-import axios from 'axios';
 import { useState } from "react";
 import { storage } from "../firebase";
-import {db} from "../firebase";
+import { db } from "../firebase";
 import { useEffect } from "react";
 var React = require('react');
 var ReactDOM = require('react-dom');
 var Carousel = require('react-responsive-carousel').Carousel;
 
+
 const DemoCarousel = () => {
-   
+
+    const form = "https://goasolutions.paperform.co/";
     const [image, setImage] = useState(null);
     const [urlArray, setUrlArray] = useState([]);
     const [progress, setProgress] = useState(0);
-    
-    useEffect(()=>{
-        db.collection("imagesUrl").onSnapshot((snapshot)=>
-        setUrlArray(
-            snapshot.docs.map((doc) => ({
-                id: doc.id,
-                data: doc.data(),
-            }))
-        )
+
+    useEffect(() => {
+        db.collection("imagesUrl").onSnapshot((snapshot) =>
+            setUrlArray(
+                snapshot.docs.map((doc) => ({
+                    id: doc.id,
+                    data: doc.data(),
+                }))
+            )
         );
-    },[] )
+    }, [])
 
     const selectFileHandler = (event) => {
         if (event.target.files[0]) {
             setImage(event.target.files[0]);
         }
 
+    }
+
+    const deleteImage = (id) => {
+        db.collection("imagesUrl").doc(id).delete();
     }
 
     const uploadFileHandler = () => {
@@ -62,17 +66,32 @@ const DemoCarousel = () => {
         )
     }
 
-{/* <img alt="" src={urlArray[1]} height="400" width="480" /> */}
+
     return (
         <div className="carousel">
 
-            <Carousel autoPlay  interval="2000" infiniteLoop swipeable emulateTouch dynamicHeight showThumbs={false} >
+            <Carousel autoPlay interval="2000" infiniteLoop swipeable emulateTouch dynamicHeight showThumbs={false} >
 
-               { urlArray.map((url)=>
-                  ( <div>
+                {urlArray.map((url) =>
+                    (<div>
 
-                       <img alt="No Image Loaded" src={url.data.imageUrl} height="400" width="480" />
-                   </div>)
+                        <IconButton href={form} style={{ width: "99vw" }}>
+                            <img  alt="No Image Loaded" src={url.data.imageUrl} height="400" width="480" />
+
+                        </IconButton>
+                        <br />
+                        <Button
+                            onClick={() => { deleteImage(url.id) }}
+                            variant="contained"
+                            color="defauly"
+                            // className="deleteButton"
+                            startIcon={<Delete />}
+                            style={{ margin: "0", position: "relative", bottom: "40px" }}
+                        >
+                            Delete
+    </Button>
+
+                    </div>)
                 )}
 
                 {/* <div>
@@ -84,7 +103,7 @@ const DemoCarousel = () => {
 
                 <progress value={progress} max="100" />
                 <br />
-                <input type="file" onChange={selectFileHandler} />
+                <input type="file" onChange={selectFileHandler}id="upload-button" />
 
                 <Button
                     onClick={uploadFileHandler}
@@ -96,30 +115,13 @@ const DemoCarousel = () => {
                     Upload
     </Button>
 
-
-                <Button
-                    variant="contained"
-                    color="red"
-                    // className="deleteButton"
-                    startIcon={<Delete />}
-                    style={{ margin: "55px" }}
-                >
-                    Delete
-    </Button>
-
-
             </div>
         </div>
 
     );
 
-
-
 }
 export default DemoCarousel;
-// ReactDOM.render(<DemoCarousel />, document.querySelector('.demo-carousel'));
 
-// Don't forget to include the css in your page 
-// <link rel="stylesheet" href="carousel.css"/>
 
 
