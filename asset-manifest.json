@@ -1,0 +1,25 @@
+{
+  "files": {
+    "main.css": "/carsousel/static/css/main.9dc68313.chunk.css",
+    "main.js": "/carsousel/static/js/main.8c15fcd5.chunk.js",
+    "main.js.map": "/carsousel/static/js/main.8c15fcd5.chunk.js.map",
+    "runtime-main.js": "/carsousel/static/js/runtime-main.19279e43.js",
+    "runtime-main.js.map": "/carsousel/static/js/runtime-main.19279e43.js.map",
+    "static/css/2.fb346933.chunk.css": "/carsousel/static/css/2.fb346933.chunk.css",
+    "static/js/2.f3b243bc.chunk.js": "/carsousel/static/js/2.f3b243bc.chunk.js",
+    "static/js/2.f3b243bc.chunk.js.map": "/carsousel/static/js/2.f3b243bc.chunk.js.map",
+    "index.html": "/carsousel/index.html",
+    "precache-manifest.79d70a24479c8bcaf81de16ec213cd1d.js": "/carsousel/precache-manifest.79d70a24479c8bcaf81de16ec213cd1d.js",
+    "service-worker.js": "/carsousel/service-worker.js",
+    "static/css/2.fb346933.chunk.css.map": "/carsousel/static/css/2.fb346933.chunk.css.map",
+    "static/css/main.9dc68313.chunk.css.map": "/carsousel/static/css/main.9dc68313.chunk.css.map",
+    "static/js/2.f3b243bc.chunk.js.LICENSE.txt": "/carsousel/static/js/2.f3b243bc.chunk.js.LICENSE.txt"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.19279e43.js",
+    "static/css/2.fb346933.chunk.css",
+    "static/js/2.f3b243bc.chunk.js",
+    "static/css/main.9dc68313.chunk.css",
+    "static/js/main.8c15fcd5.chunk.js"
+  ]
+}
