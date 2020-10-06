@@ -1,82 +1,125 @@
 import "react-responsive-carousel/lib/styles/carousel.min.css";
 import img1 from '../Images/1.png';
 import './carousel.css';
+import { Button } from '@material-ui/core';
+import { Delete, CloudUpload, DomainDisabled } from "@material-ui/icons";
+import axios from 'axios';
+import { useState } from "react";
+import { storage } from "../firebase";
+import {db} from "../firebase";
+import { useEffect } from "react";
 var React = require('react');
 var ReactDOM = require('react-dom');
 var Carousel = require('react-responsive-carousel').Carousel;
 
-function DemoCarousel()  {
-  
-        return (
-            <div className="carousel">
-
-            <Carousel autoPlay swipeable emulateTouch dynamicHeight showThumbs={false} >
-    <div>
-      <img alt="" src={img1} height="400" width="480" />
-      {/* <p className="legend">Legend 1</p> */}
-    </div>
-    <div>
-      <img alt="" src="http://lorempixel.com/output/cats-q-c-640-480-2.jpg" />
-      <p className="legend">Legend 2</p>
-    </div>
-    <div>
-      <img alt="" src="http://lorempixel.com/output/cats-q-c-640-480-3.jpg" />
-      <p className="legend">Legend 3</p>
-    </div>
-    <div>
-      <img alt="" src="http://lorempixel.com/output/cats-q-c-640-480-4.jpg" />
-      <p className="legend">Legend 4</p>
-    </div>
-    <div>
-      <img alt="" src="http://lorempixel.com/output/cats-q-c-640-480-5.jpg" />
-      <p className="legend">Legend 5</p>
-    </div>
-    <div>
-      <img alt="" src="http://lorempixel.com/output/cats-q-c-640-480-6.jpg" />
-      <p className="legend">Legend 6</p>
-    </div>
-    <div>
-      <img alt="" src="http://lorempixel.com/output/cats-q-c-640-480-7.jpg" />
-      <p className="legend">Legend 7</p>
-    </div>
-    <div>
-      <img alt="" src="http://lorempixel.com/output/cats-q-c-640-480-8.jpg" />
-      <p className="legend">Legend 8</p>
-    </div>
-    <div>
-      <img alt="" src="http://lorempixel.com/output/cats-q-c-640-480-9.jpg" />
-      <p className="legend">Legend 9</p>
-    </div>
-    <div>
-      <img alt="" src="http://lorempixel.com/output/cats-q-c-640-480-10.jpg" />
-      <p className="legend">Legend 10</p>
-    </div>
-    <div>
-      <img alt="" src="http://lorempixel.com/output/cats-q-c-640-480-11.jpg" />
-      <p className="legend">Legend 11</p>
-    </div>
-    <div>
-      <img alt="" src="http://lorempixel.com/output/cats-q-c-640-480-12.jpg" />
-      <p className="legend">Legend 12</p>
-    </div>
-    <div>
-      <img alt="" src="http://lorempixel.com/output/cats-q-c-640-480-13.jpg" />
-      <p className="legend">Legend 13</p>
-    </div>
-    <div>
-      <img alt="" src="http://lorempixel.com/output/cats-q-c-640-480-14.jpg" />
-      <p className="legend">Legend 14</p>
-    </div>
-  </Carousel>
-            </div>
-        );
+const DemoCarousel = () => {
+   
+    const [image, setImage] = useState(null);
+    const [urlArray, setUrlArray] = useState([]);
+    const [progress, setProgress] = useState(0);
     
-};
+    useEffect(()=>{
+        db.collection("imagesUrl").onSnapshot((snapshot)=>
+        setUrlArray(
+            snapshot.docs.map((doc) => ({
+                id: doc.id,
+                data: doc.data(),
+            }))
+        )
+        );
+    },[] )
+
+    const selectFileHandler = (event) => {
+        if (event.target.files[0]) {
+            setImage(event.target.files[0]);
+        }
+
+    }
+
+    const uploadFileHandler = () => {
+        const uploadTask = storage.ref(`images/${image.name}`).put(image);
+        uploadTask.on(
+            "state_changed",
+            snapshot => {
+                const progress = Math.round(
+                    (snapshot.bytesTransferred / snapshot.totalBytes) * 100
+                );
+                setProgress(progress);
+            },
+            error => {
+                console.log(error);
+            },
+            () => {
+                storage.ref("images").child(image.name).getDownloadURL().then(url => {
+                    urlArray.push(url);
+                    console.log(urlArray);
+                    db.collection("imagesUrl").add({
+                        imageUrl: url
+                    });
+
+                })
+            }
+        )
+    }
+
+{/* <img alt="" src={urlArray[1]} height="400" width="480" /> */}
+    return (
+        <div className="carousel">
+
+            <Carousel autoPlay  interval="2000" infiniteLoop swipeable emulateTouch dynamicHeight showThumbs={false} >
+
+               { urlArray.map((url)=>
+                  ( <div>
+
+                       <img alt="No Image Loaded" src={url.data.imageUrl} height="400" width="480" />
+                   </div>)
+                )}
+
+                {/* <div>
+                <img alt="" src={urlArray[1]} height="400" width="480" />    
+                    <p className="legend">Legend 14</p>
+                </div> */}
+            </Carousel>
+            <div className="carousel_actions">
+
+                <progress value={progress} max="100" />
+                <br />
+                <input type="file" onChange={selectFileHandler} />
+
+                <Button
+                    onClick={uploadFileHandler}
+                    variant="contained"
+                    color="default"
+                    // className="uploadButton"
+                    startIcon={<CloudUpload />}
+                >
+                    Upload
+    </Button>
+
+
+                <Button
+                    variant="contained"
+                    color="red"
+                    // className="deleteButton"
+                    startIcon={<Delete />}
+                    style={{ margin: "55px" }}
+                >
+                    Delete
+    </Button>
+
+
+            </div>
+        </div>
+
+    );
+
+
+
+}
 export default DemoCarousel;
 // ReactDOM.render(<DemoCarousel />, document.querySelector('.demo-carousel'));
- 
+
 // Don't forget to include the css in your page 
 // <link rel="stylesheet" href="carousel.css"/>
-
 
 
